@@ -1,64 +1,81 @@
-import React, { useState, useEffect } from 'react';
-import { 
-  FaPhoneAlt, FaEnvelope, FaMapMarkerAlt, FaGraduationCap, 
-  FaTools, FaBriefcase, FaLanguage, FaBars, FaTimes, FaDownload, FaArrowRight, FaEye,
-  FaImages, FaWhatsapp
-} from 'react-icons/fa';
+import React, { useEffect, useState } from "react";
+import {
+  FaPhoneAlt,
+  FaEnvelope,
+  FaMapMarkerAlt,
+  FaGraduationCap,
+  FaTools,
+  FaBriefcase,
+  FaLanguage,
+  FaBars,
+  FaTimes,
+  FaDownload,
+  FaArrowRight,
+  FaEye,
+  FaWhatsapp,
+  FaChevronRight,
+} from "react-icons/fa";
 
-// Reusable Typewriter Component for smooth typing and erasing animation
-function TypewriterEffect({ texts, typingSpeed = 100, deletingSpeed = 50, pauseTime = 2000 }) {
-  const [currentTextIndex, setCurrentTextIndex] = useState(0);
-  const [currentDisplayText, setCurrentDisplayText] = useState('');
-  const [isDeleting, setIsDeleting] = useState(false);
+// ===============================
+// TYPEWRITER
+// ===============================
+function TypewriterEffect({
+  texts,
+  typingSpeed = 100,
+  deletingSpeed = 50,
+  pauseTime = 1800,
+}) {
+  const [index, setIndex] = useState(0);
+  const [text, setText] = useState("");
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
-    const fullText = texts[currentTextIndex];
+    const fullText = texts[index];
     let timer;
 
-    if (!isDeleting) {
-      // Typing forward
-      if (currentDisplayText.length < fullText.length) {
+    if (!deleting) {
+      if (text.length < fullText.length) {
         timer = setTimeout(() => {
-          setCurrentDisplayText(fullText.substring(0, currentDisplayText.length + 1));
+          setText(fullText.substring(0, text.length + 1));
         }, typingSpeed);
       } else {
-        // Pause at full text before deleting
-        timer = setTimeout(() => {
-          setIsDeleting(true);
-        }, pauseTime);
+        timer = setTimeout(() => setDeleting(true), pauseTime);
       }
     } else {
-      // Deleting backward
-      if (currentDisplayText.length > 0) {
+      if (text.length > 0) {
         timer = setTimeout(() => {
-          setCurrentDisplayText(fullText.substring(0, currentDisplayText.length - 1));
+          setText(fullText.substring(0, text.length - 1));
         }, deletingSpeed);
       } else {
-        // Move to next text string
-        setIsDeleting(false);
-        setCurrentTextIndex((prev) => (prev + 1) % texts.length);
+        setDeleting(false);
+        setIndex((prev) => (prev + 1) % texts.length);
       }
     }
 
     return () => clearTimeout(timer);
-  }, [currentDisplayText, isDeleting, currentTextIndex, texts, typingSpeed, deletingSpeed, pauseTime]);
+  }, [text, deleting, index, texts, typingSpeed, deletingSpeed, pauseTime]);
 
   return (
-    <span>
-      {currentDisplayText}
-      <span className="animate-pulse text-teal-400">|</span>
-    </span>
+    <>
+      {text}
+      <span className="text-cyan-400 animate-pulse">|</span>
+    </>
   );
 }
 
+// ===============================
+// APP
+// ===============================
 export default function App() {
-  const [navOpen, setNavOpen] = useState(false);
-  const [showCvModal, setShowCvModal] = useState(false); // CV Modal State
-  const [activeTab, setActiveTab] = useState('studio'); // Projects Tab State ('studio', 'living-kitchen', or 'other')
-  const [selectedImage, setSelectedImage] = useState(null); // Lightbox Image State
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [cvOpen, setCvOpen] = useState(false);
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [activeTab, setActiveTab] = useState("studio");
 
-  // Projects Data Arrays
-  const studioApartmentProjects = [
+  // ===============================
+  // PROJECTS
+  // ===============================
+  const studioProjects = [
     { id: 1, title: "Studio Apartment - View 01", img: "/p1.jpg" },
     { id: 2, title: "Studio Apartment - View 02", img: "/p2.jpg" },
     { id: 3, title: "Studio Apartment - View 03", img: "/p3.jpg" },
@@ -66,7 +83,7 @@ export default function App() {
     { id: 5, title: "Studio Apartment - View 05", img: "/p5.jpg" },
   ];
 
-  const livingKitchenProjects = [
+  const livingProjects = [
     { id: 6, title: "Living Room & Kitchen - View 01", img: "/p6.jpg" },
     { id: 7, title: "Living Room & Kitchen - View 02", img: "/p7.jpg" },
     { id: 8, title: "Living Room & Kitchen - View 03", img: "/p8.jpg" },
@@ -74,7 +91,6 @@ export default function App() {
     { id: 10, title: "Living Room & Kitchen - View 05", img: "/p10.jpg" },
   ];
 
-  // New Other Projects Array (p11 to p20)
   const otherProjects = [
     { id: 11, title: "Other Project - View 01", img: "/p11.jpg" },
     { id: 12, title: "Other Project - View 02", img: "/p12.jpg" },
@@ -88,471 +104,827 @@ export default function App() {
     { id: 20, title: "Other Project - View 10", img: "/p20.jpg" },
   ];
 
-  // Helper function to get current projects based on active tab
-  const getCurrentProjects = () => {
-    if (activeTab === 'studio') return studioApartmentProjects;
-    if (activeTab === 'living-kitchen') return livingKitchenProjects;
-    if (activeTab === 'other') return otherProjects;
-    return [];
-  };
+  const currentProjects =
+    activeTab === "studio"
+      ? studioProjects
+      : activeTab === "living"
+      ? livingProjects
+      : otherProjects;
+
+  // ===============================
+  // NAV ITEMS
+  // ===============================
+  const navItems = [
+    ["Home", "#home"],
+    ["About", "#about"],
+    ["Projects", "#projects"],
+    ["Skills", "#skills"],
+    ["Experience", "#experience"],
+    ["Education", "#education"],
+  ];
 
   return (
-    <div className="bg-[#0b1329] text-slate-100 font-sans min-h-screen selection:bg-teal-500 selection:text-slate-950 overflow-x-hidden w-full relative">
-      
-      {/* Floating Sticky WhatsApp Button */}
-      <a 
-        href="https://wa.me/923213423312" 
-        target="_blank" 
-        rel="noopener noreferrer"
-        aria-label="Chat on WhatsApp"
-        className="fixed bottom-6 right-6 z-50 bg-emerald-500 hover:bg-emerald-400 text-slate-950 p-3.5 sm:p-4 rounded-full shadow-[0_0_20px_rgba(16,185,129,0.5)] flex items-center justify-center transition-all duration-300 hover:scale-110 group cursor-pointer"
-      >
-        <FaWhatsapp className="text-2xl sm:text-3xl text-white" />
-        <span className="max-w-0 overflow-hidden whitespace-nowrap group-hover:max-w-xs transition-all duration-500 ease-in-out text-white font-bold text-xs uppercase tracking-wider pl-0 group-hover:pl-2">
-          WhatsApp
-        </span>
-      </a>
+    <div className="min-h-screen overflow-x-hidden bg-[#020d1d] text-slate-100 font-sans selection:bg-cyan-400 selection:text-slate-950">
 
-      {/* Floating Stylish Navbar */}
-      <nav className="fixed top-3 left-0 w-full z-50 px-3 sm:px-6">
-        <div className="max-w-6xl mx-auto bg-slate-950/85 backdrop-blur-xl border border-teal-500/30 rounded-full px-4 sm:px-6 py-2.5 sm:py-3 flex justify-between items-center shadow-[0_0_25px_rgba(20,184,166,0.15)]">
-          
-          {/* Logo with Initials NS */}
-          <a href="#" className="flex items-center space-x-2.5 group">
-            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-gradient-to-tr from-teal-600 to-teal-300 flex items-center justify-center text-slate-950 font-serif font-bold text-base sm:text-lg shadow-md group-hover:scale-105 transition">
-              NS
-            </div>
-            <span className="text-xs sm:text-sm md:text-base font-serif tracking-widest text-teal-400 font-bold hidden xs:inline min-w-[145px]">
-              <TypewriterEffect texts={["NIMRA SARFRAZ", "INTERIOR DESIGNER"]} />
-            </span>
-          </a>
-          
-          {/* Desktop Nav Links */}
-          <div className="hidden md:flex items-center space-x-6 text-xs tracking-widest uppercase font-medium">
-            <a href="#home" className="text-teal-400 hover:text-teal-300 transition relative py-1 after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-teal-400">Home</a>
-            <a href="#about" className="text-slate-300 hover:text-teal-400 transition">About</a>
-            <a href="#projects" className="text-slate-300 hover:text-teal-400 transition">Projects</a>
-            <a href="#skills" className="text-slate-300 hover:text-teal-400 transition">Skills</a>
-            <a href="#experience" className="text-slate-300 hover:text-teal-400 transition">Experience</a>
-            <a href="#education" className="text-slate-300 hover:text-teal-400 transition">Education</a>
+      {/* =====================================================
+          BACKGROUND GLOW
+      ===================================================== */}
+      <div className="fixed inset-0 pointer-events-none overflow-hidden">
+        <div className="absolute -top-40 -left-40 w-[500px] h-[500px] bg-cyan-500/10 rounded-full blur-[130px]" />
+        <div className="absolute top-[40%] -right-40 w-[500px] h-[500px] bg-teal-500/10 rounded-full blur-[130px]" />
+      </div>
+
+      {/* =====================================================
+          WHATSAPP
+      ===================================================== */}
+      <a
+        href="https://wa.me/923213423312"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="fixed right-5 bottom-5 z-[100] group"
+      >
+        <div className="flex items-center gap-2">
+
+          <span className="hidden sm:block bg-slate-900 border border-cyan-400/30 text-white text-xs px-3 py-2 rounded-lg opacity-0 group-hover:opacity-100 transition">
+            WhatsApp
+          </span>
+
+          <div className="w-14 h-14 rounded-full bg-[#20c76a] flex items-center justify-center shadow-[0_0_30px_rgba(32,199,106,0.45)] hover:scale-110 transition">
+            <FaWhatsapp className="text-3xl text-white" />
           </div>
 
-          {/* Let's Talk Button */}
-          <div className="hidden md:block">
-            <a 
-              href="#contact" 
-              className="px-6 py-2 border border-teal-400/60 text-teal-400 rounded-full text-xs font-semibold tracking-wider uppercase hover:bg-teal-400 hover:text-slate-950 transition shadow-[0_0_15px_rgba(20,184,166,0.2)]"
+        </div>
+      </a>
+
+      {/* =====================================================
+          NAVBAR
+      ===================================================== */}
+      <nav className="fixed top-3 left-0 right-0 z-50 px-3 sm:px-6">
+
+        <div className="max-w-6xl mx-auto rounded-full border border-cyan-400/40 bg-[#020b18]/90 backdrop-blur-xl px-4 sm:px-6 py-2.5 shadow-[0_0_30px_rgba(34,211,238,0.10)]">
+
+          <div className="flex items-center justify-between">
+
+            {/* LOGO */}
+            <a href="#home" className="flex items-center gap-3">
+
+              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-cyan-400 to-teal-300 text-slate-950 flex items-center justify-center font-serif font-bold text-lg">
+                NS
+              </div>
+
+              <div className="hidden sm:block">
+                <p className="text-cyan-400 font-serif font-bold tracking-[0.18em] text-sm">
+                  NIMRA SARFRAZ
+                </p>
+
+                <p className="text-[8px] tracking-[0.35em] text-slate-400">
+                  INTERIOR DESIGNER
+                </p>
+              </div>
+
+            </a>
+
+            {/* DESKTOP NAV */}
+            <div className="hidden lg:flex items-center gap-6">
+
+              {navItems.map(([name, link], i) => (
+                <a
+                  key={name}
+                  href={link}
+                  className={`text-[10px] uppercase tracking-widest transition ${
+                    i === 0
+                      ? "text-cyan-400 border-b border-cyan-400 pb-1"
+                      : "text-slate-300 hover:text-cyan-400"
+                  }`}
+                >
+                  {name}
+                </a>
+              ))}
+
+            </div>
+
+            {/* TALK */}
+            <a
+              href="#contact"
+              className="hidden sm:block px-5 py-2 border border-cyan-400 rounded-full text-[10px] uppercase tracking-widest text-cyan-400 hover:bg-cyan-400 hover:text-slate-950 transition"
             >
               Let's Talk
             </a>
+
+            {/* MOBILE BUTTON */}
+            <button
+              onClick={() => setMenuOpen(!menuOpen)}
+              className="lg:hidden text-cyan-400 text-xl"
+            >
+              {menuOpen ? <FaTimes /> : <FaBars />}
+            </button>
+
           </div>
 
-          {/* Mobile Menu Toggle Button */}
-          <button 
-            onClick={() => setNavOpen(!navOpen)} 
-            className="md:hidden text-2xl text-teal-400 focus:outline-none p-1"
-          >
-            {navOpen ? <FaTimes /> : <FaBars />}
-          </button>
+          {/* MOBILE MENU */}
+          {menuOpen && (
+            <div className="lg:hidden mt-4 pb-3 border-t border-slate-800 pt-4 flex flex-col gap-2">
+
+              {navItems.map(([name, link]) => (
+                <a
+                  key={name}
+                  href={link}
+                  onClick={() => setMenuOpen(false)}
+                  className="text-xs uppercase tracking-widest text-slate-300 hover:text-cyan-400 py-2"
+                >
+                  {name}
+                </a>
+              ))}
+
+              <a
+                href="#contact"
+                onClick={() => setMenuOpen(false)}
+                className="text-center bg-cyan-400 text-slate-950 py-3 rounded-full text-xs font-bold mt-2"
+              >
+                Let's Talk
+              </a>
+
+            </div>
+          )}
+
         </div>
-
-        {/* Mobile Dropdown Menu */}
-        {navOpen && (
-          <div className="md:hidden max-w-6xl mx-auto mt-2 bg-slate-950/95 backdrop-blur-2xl border border-teal-500/30 rounded-2xl px-6 py-5 flex flex-col space-y-3 text-xs uppercase tracking-widest shadow-2xl">
-            <a href="#home" onClick={() => setNavOpen(false)} className="text-teal-400 py-2 border-b border-slate-800">Home</a>
-            <a href="#about" onClick={() => setNavOpen(false)} className="text-slate-300 hover:text-teal-400 py-2 border-b border-slate-800">About</a>
-            <a href="#projects" onClick={() => setNavOpen(false)} className="text-slate-300 hover:text-teal-400 py-2 border-b border-slate-800">Projects</a>
-            <a href="#skills" onClick={() => setNavOpen(false)} className="text-slate-300 hover:text-teal-400 py-2 border-b border-slate-800">Skills</a>
-            <a href="#experience" onClick={() => setNavOpen(false)} className="text-slate-300 hover:text-teal-400 py-2 border-b border-slate-800">Experience</a>
-            <a href="#education" onClick={() => setNavOpen(false)} className="text-slate-300 hover:text-teal-400 py-2 border-b border-slate-800">Education</a>
-            <a href="#contact" onClick={() => setNavOpen(false)} className="text-center py-3 bg-teal-400 text-slate-950 font-bold rounded-full mt-2">Let's Talk</a>
-          </div>
-        )}
       </nav>
 
-      {/* Hero Section */}
-      <header id="home" className="relative min-h-[90vh] flex items-center justify-center pt-32 pb-20 px-4 sm:px-6 overflow-hidden">
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-teal-500/10 rounded-full blur-3xl pointer-events-none"></div>
-        <div className="absolute bottom-10 right-1/4 w-96 h-96 bg-rose-300/5 rounded-full blur-3xl pointer-events-none"></div>
+      {/* =====================================================
+          HERO
+      ===================================================== */}
+      <section
+        id="home"
+        className="relative min-h-screen flex items-center pt-32 pb-20 px-5"
+      >
 
-        <div className="max-w-4xl mx-auto w-full text-center space-y-8 z-10">
-          <div className="inline-block px-4 py-1.5 rounded-full bg-teal-500/10 border border-teal-500/30 text-teal-400 text-xs font-semibold tracking-widest uppercase">
-            ✨ Available For Interior Design Projects
-          </div>
-          
-          <h2 className="text-lg md:text-xl text-slate-300 font-light">
-            Hi there 👋, I am
-          </h2>
-          
-          <h1 className="text-4xl sm:text-6xl lg:text-7xl font-serif font-bold tracking-tight text-white min-h-[1.2em]">
-            <TypewriterEffect texts={["Nimra Sarfraz", "Interior Designer", "Spatial Architect"]} />
-          </h1>
+        <div className="max-w-6xl mx-auto w-full grid lg:grid-cols-2 gap-12 items-center">
 
-          <h3 className="text-2xl md:text-3xl text-teal-400 font-medium tracking-wide">
-            Professional Interior Designer
-          </h3>
+          {/* LEFT */}
+          <div className="relative z-10 text-center lg:text-left">
 
-          <p className="text-slate-400 text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
-            Transforming spaces into breathtaking visual masterpieces with cutting-edge spatial planning, AutoCAD, Sketchup, and modern design architecture.
-          </p>
-
-          <div className="flex flex-wrap justify-center gap-4 pt-4">
-            <a 
-              href="#contact" 
-              className="px-8 py-3.5 bg-teal-500 text-slate-950 font-bold text-xs tracking-wider uppercase rounded-full hover:bg-teal-400 transition shadow-lg shadow-teal-500/25 flex items-center gap-2"
-            >
-              Hire Me <FaArrowRight className="text-xs" />
-            </a>
-            
-            {/* View/Download CV Button that opens the Modal */}
-            <button 
-              onClick={() => setShowCvModal(true)}
-              className="px-8 py-3.5 border border-slate-700 text-slate-200 font-semibold text-xs tracking-wider uppercase rounded-full hover:border-teal-400 hover:text-teal-400 transition flex items-center gap-2 cursor-pointer"
-            >
-              <FaEye className="text-xs" /> View CV
-            </button>
-          </div>
-        </div>
-      </header>
-
-      {/* CV Popup Modal */}
-      {showCvModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md">
-          <div className="relative bg-slate-900 border border-teal-500/40 rounded-3xl max-w-2xl w-full p-6 shadow-2xl overflow-hidden flex flex-col items-center max-h-[90vh]">
-            
-            <div className="w-full flex justify-between items-center pb-4 mb-4 border-b border-slate-800">
-              <h3 className="text-teal-400 font-serif font-bold text-lg tracking-wider">NIMRA SARFRAZ - CV</h3>
-              <button 
-                onClick={() => setShowCvModal(false)}
-                className="text-slate-400 hover:text-white bg-slate-800 p-2 rounded-full transition text-lg"
-              >
-                <FaTimes />
-              </button>
+            <div className="inline-flex px-4 py-2 rounded-full border border-cyan-400/40 bg-cyan-400/5 text-cyan-400 text-[9px] uppercase tracking-widest mb-7">
+              ✦ Available For Interior Design Projects
             </div>
 
-            <div className="w-full max-h-[65vh] overflow-y-auto flex justify-center p-2">
-              <img 
-                src="/cv.jpg" 
-                alt="Nimra Sarfraz CV" 
-                className="rounded-xl shadow-lg max-w-full object-contain border border-slate-700" 
+            <p className="text-slate-300 text-lg mb-3">
+              Hi there 👋, I am
+            </p>
+
+            <h1 className="font-serif text-5xl sm:text-6xl lg:text-7xl font-bold leading-tight text-white">
+              <TypewriterEffect
+                texts={[
+                  "Nimra Sarfraz",
+                  "Interior Designer",
+                  "Spatial Architect",
+                ]}
               />
-            </div>
+            </h1>
 
-            <div className="flex flex-col sm:flex-row gap-3 w-full mt-6">
-              <a 
-                href="/cv.jpg" 
-                download="Nimra_Sarfraz_CV.jpg"
-                className="w-full sm:flex-1 py-3 bg-teal-500 text-slate-950 font-bold text-xs uppercase tracking-wider rounded-full hover:bg-teal-400 transition flex items-center justify-center gap-2 text-center"
+            <h2 className="text-2xl sm:text-3xl font-serif font-bold text-cyan-400 mt-4">
+              Interior Designer
+            </h2>
+
+            <p className="text-slate-400 max-w-xl mt-6 leading-7 text-sm sm:text-base mx-auto lg:mx-0">
+              Transforming spaces into breathtaking visual masterpieces
+              with cutting-edge spatial planning, AutoCAD, Sketchup,
+              and modern design architecture.
+            </p>
+
+            {/* BUTTONS */}
+            <div className="flex flex-wrap justify-center lg:justify-start gap-4 mt-8">
+
+              <a
+                href="#contact"
+                className="px-7 py-3.5 rounded-full bg-cyan-400 text-slate-950 text-xs font-bold uppercase tracking-wider hover:bg-cyan-300 transition flex items-center gap-2"
               >
-                <FaDownload /> Download Image
+                Hire Me
+                <FaArrowRight />
               </a>
-              <button 
-                onClick={() => setShowCvModal(false)}
-                className="w-full sm:w-auto px-6 py-3 border border-slate-700 text-slate-300 font-semibold text-xs uppercase rounded-full hover:bg-slate-800 transition text-center"
+
+              <button
+                onClick={() => setCvOpen(true)}
+                className="px-7 py-3.5 rounded-full border border-cyan-400/70 text-cyan-400 text-xs font-bold uppercase tracking-wider hover:bg-cyan-400 hover:text-slate-950 transition flex items-center gap-2"
               >
-                Close
+                <FaEye />
+                View CV
               </button>
+
             </div>
 
           </div>
-        </div>
-      )}
 
-      {/* Contact & Location Info Strip */}
-      <section id="about" className="py-16 bg-slate-900/60 border-y border-slate-800">
-        <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="flex items-center space-x-4 bg-slate-950/60 p-6 rounded-2xl border border-slate-800">
-            <div className="p-4 bg-teal-500/10 text-teal-400 rounded-xl text-xl">
-              <FaPhoneAlt />
+          {/* RIGHT IMAGE */}
+          <div className="relative hidden md:block">
+
+            <div className="absolute inset-0 bg-cyan-400/10 blur-[70px]" />
+
+            <div className="relative rounded-[40px] overflow-hidden border border-cyan-400/30 shadow-[0_0_50px_rgba(34,211,238,0.12)]">
+
+              <img
+                src="/hero-interior.jpg"
+                alt="Interior Design"
+                className="w-full h-[520px] object-cover"
+                onError={(e) => {
+                  e.currentTarget.src =
+                    "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&w=1200&q=80";
+                }}
+              />
+
+              <div className="absolute inset-0 bg-gradient-to-r from-[#020d1d] via-transparent to-transparent" />
+
             </div>
-            <div>
-              <p className="text-xs uppercase tracking-wider text-slate-400">Phone</p>
-              <a href="tel:03213423312" className="text-base font-medium hover:text-teal-400 transition">0321-3423312</a>
-            </div>
+
           </div>
 
-          <div className="flex items-center space-x-4 bg-slate-950/60 p-6 rounded-2xl border border-slate-800">
-            <div className="p-4 bg-teal-500/10 text-teal-400 rounded-xl text-xl">
-              <FaEnvelope />
-            </div>
-            <div>
-              <p className="text-xs uppercase tracking-wider text-slate-400">Email</p>
-              <a href="mailto:Nimrasarfraz12@gmail.com" className="text-sm font-medium hover:text-teal-400 transition">Nimrasarfraz12@gmail.com</a>
-            </div>
-          </div>
-
-          <div className="flex items-center space-x-4 bg-slate-950/60 p-6 rounded-2xl border border-slate-800">
-            <div className="p-4 bg-teal-500/10 text-teal-400 rounded-xl text-xl">
-              <FaMapMarkerAlt />
-            </div>
-            <div>
-              <p className="text-xs uppercase tracking-wider text-slate-400">Location</p>
-              <span className="text-base font-medium">Rawalpindi</span>
-            </div>
-          </div>
         </div>
       </section>
 
-      {/* Projects Portfolio Section */}
-      <section id="projects" className="py-24 max-w-7xl mx-auto px-4 sm:px-6">
-        <div className="text-center mb-12">
-          <span className="text-teal-400 uppercase tracking-[0.2em] text-xs font-semibold">Visual Gallery</span>
-          <h2 className="text-3xl md:text-5xl font-serif font-bold mt-2">Featured Projects</h2>
-          <p className="text-slate-400 text-sm mt-3 max-w-xl mx-auto">Explore selected interior works ranging from compact modern studio apartments to elegant living rooms and kitchens.</p>
+      {/* =====================================================
+          CONTACT STRIP
+      ===================================================== */}
+      <section
+        id="about"
+        className="border-y border-cyan-400/10 bg-[#031326] py-8 px-5"
+      >
+
+        <div className="max-w-6xl mx-auto grid md:grid-cols-3 gap-4">
+
+          {/* PHONE */}
+          <div className="flex items-center gap-4 border border-cyan-400/20 rounded-2xl p-5 bg-[#02101f]">
+
+            <div className="w-12 h-12 rounded-full border border-cyan-400 flex items-center justify-center text-cyan-400">
+              <FaPhoneAlt />
+            </div>
+
+            <div>
+              <p className="text-[9px] text-cyan-400 uppercase tracking-widest">
+                Phone
+              </p>
+              <p className="text-sm mt-1">
+                0321-3423312
+              </p>
+            </div>
+
+          </div>
+
+          {/* EMAIL */}
+          <div className="flex items-center gap-4 border border-cyan-400/20 rounded-2xl p-5 bg-[#02101f]">
+
+            <div className="w-12 h-12 rounded-full border border-cyan-400 flex items-center justify-center text-cyan-400">
+              <FaEnvelope />
+            </div>
+
+            <div>
+              <p className="text-[9px] text-cyan-400 uppercase tracking-widest">
+                Email
+              </p>
+              <p className="text-xs mt-1">
+                Nimrasarfraz12@gmail.com
+              </p>
+            </div>
+
+          </div>
+
+          {/* LOCATION */}
+          <div className="flex items-center gap-4 border border-cyan-400/20 rounded-2xl p-5 bg-[#02101f]">
+
+            <div className="w-12 h-12 rounded-full border border-cyan-400 flex items-center justify-center text-cyan-400">
+              <FaMapMarkerAlt />
+            </div>
+
+            <div>
+              <p className="text-[9px] text-cyan-400 uppercase tracking-widest">
+                Location
+              </p>
+              <p className="text-sm mt-1">
+                Rawalpindi
+              </p>
+            </div>
+
+          </div>
+
         </div>
 
-        {/* Tab Selection Buttons */}
-        <div className="flex flex-wrap justify-center gap-4 mb-12">
-          <button 
-            onClick={() => setActiveTab('studio')}
-            className={`px-6 py-3 rounded-full text-xs font-bold uppercase tracking-wider transition cursor-pointer ${
-              activeTab === 'studio' 
-                ? 'bg-teal-500 text-slate-950 shadow-lg shadow-teal-500/25' 
-                : 'bg-slate-900 border border-slate-800 text-slate-300 hover:border-teal-500/50'
+      </section>
+
+      {/* =====================================================
+          PROJECTS
+      ===================================================== */}
+      <section
+        id="projects"
+        className="max-w-7xl mx-auto px-5 py-24"
+      >
+
+        <div className="text-center mb-12">
+
+          <p className="text-cyan-400 text-[10px] uppercase tracking-[0.3em] font-bold">
+            Visual Gallery
+          </p>
+
+          <h2 className="text-4xl sm:text-5xl font-serif font-bold mt-2">
+            Featured Projects
+          </h2>
+
+          <p className="max-w-xl mx-auto text-slate-400 text-sm mt-4">
+            Explore selected interior works ranging from compact modern
+            studio apartments to elegant living rooms and kitchens.
+          </p>
+
+        </div>
+
+        {/* TABS */}
+        <div className="flex flex-wrap justify-center gap-3 mb-10">
+
+          <button
+            onClick={() => setActiveTab("studio")}
+            className={`px-6 py-3 rounded-full text-[10px] font-bold uppercase tracking-widest border transition ${
+              activeTab === "studio"
+                ? "bg-cyan-400 text-slate-950 border-cyan-400"
+                : "border-cyan-400/50 text-cyan-400 hover:bg-cyan-400 hover:text-slate-950"
             }`}
           >
             Studio Apartment
           </button>
-          <button 
-            onClick={() => setActiveTab('living-kitchen')}
-            className={`px-6 py-3 rounded-full text-xs font-bold uppercase tracking-wider transition cursor-pointer ${
-              activeTab === 'living-kitchen' 
-                ? 'bg-teal-500 text-slate-950 shadow-lg shadow-teal-500/25' 
-                : 'bg-slate-900 border border-slate-800 text-slate-300 hover:border-teal-500/50'
+
+          <button
+            onClick={() => setActiveTab("living")}
+            className={`px-6 py-3 rounded-full text-[10px] font-bold uppercase tracking-widest border transition ${
+              activeTab === "living"
+                ? "bg-cyan-400 text-slate-950 border-cyan-400"
+                : "border-cyan-400/50 text-cyan-400 hover:bg-cyan-400 hover:text-slate-950"
             }`}
           >
             Living Room & Kitchen
           </button>
-          <button 
-            onClick={() => setActiveTab('other')}
-            className={`px-6 py-3 rounded-full text-xs font-bold uppercase tracking-wider transition cursor-pointer ${
-              activeTab === 'other' 
-                ? 'bg-teal-500 text-slate-950 shadow-lg shadow-teal-500/25' 
-                : 'bg-slate-900 border border-slate-800 text-slate-300 hover:border-teal-500/50'
+
+          <button
+            onClick={() => setActiveTab("other")}
+            className={`px-6 py-3 rounded-full text-[10px] font-bold uppercase tracking-widest border transition ${
+              activeTab === "other"
+                ? "bg-cyan-400 text-slate-950 border-cyan-400"
+                : "border-cyan-400/50 text-cyan-400 hover:bg-cyan-400 hover:text-slate-950"
             }`}
           >
             Other
           </button>
+
         </div>
 
-        {/* Gallery Grid Display */}
-        <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
-          {getCurrentProjects().map((item) => (
-            <div 
-              key={item.id} 
-              onClick={() => setSelectedImage(item)}
-              className="group relative bg-slate-900 border border-slate-800 rounded-xl sm:rounded-2xl overflow-hidden cursor-pointer shadow-md hover:border-teal-500/50 transition"
+        {/* GALLERY */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+
+          {currentProjects.map((project) => (
+
+            <div
+              key={project.id}
+              onClick={() => setSelectedImage(project)}
+              className="group cursor-pointer overflow-hidden rounded-2xl border border-cyan-400/20 bg-[#031326] hover:border-cyan-400/60 transition"
             >
-              <div className="h-36 sm:h-64 overflow-hidden bg-slate-950">
-                <img 
-                  src={item.img} 
-                  alt={item.title} 
-                  className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
-                  onError={(e)=>{
-                    e.target.onerror = null; 
-                    e.target.src = "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&q=80&w=800";
+
+              <div className="h-64 overflow-hidden relative">
+
+                <img
+                  src={project.img}
+                  alt={project.title}
+                  className="w-full h-full object-cover group-hover:scale-110 transition duration-700"
+                  onError={(e) => {
+                    e.currentTarget.src =
+                      "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&w=1000&q=80";
                   }}
                 />
-              </div>
-              <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent opacity-0 group-hover:opacity-100 transition duration-300 hidden sm:flex items-end p-4">
-                <div>
-                  <span className="text-teal-400 text-[10px] sm:text-xs font-semibold uppercase tracking-wider">Click to preview</span>
-                  <h3 className="text-white font-serif font-bold text-sm sm:text-lg">{item.title}</h3>
+
+                <div className="absolute inset-0 bg-gradient-to-t from-[#020d1d] via-transparent opacity-80" />
+
+                <div className="absolute bottom-4 left-4 right-4 flex justify-between items-end">
+
+                  <div>
+                    <p className="text-[9px] text-cyan-400 uppercase tracking-widest">
+                      Click to Preview
+                    </p>
+
+                    <h3 className="text-sm font-semibold mt-1">
+                      {project.title}
+                    </h3>
+                  </div>
+
+                  <FaEye className="text-cyan-400" />
+
                 </div>
+
               </div>
-              <div className="p-2.5 sm:p-4 bg-slate-950 flex justify-between items-center border-t border-slate-800/80">
-                <span className="text-[11px] sm:text-sm font-medium text-slate-200 truncate">{item.title}</span>
-                <FaEye className="text-teal-400 text-xs sm:text-sm shrink-0 ml-1" />
-              </div>
+
             </div>
+
           ))}
+
         </div>
+
       </section>
 
-      {/* Image Lightbox Modal */}
-      {selectedImage && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/90 backdrop-blur-md">
-          <div className="relative bg-slate-900 border border-teal-500/40 rounded-3xl max-w-4xl w-full p-4 sm:p-6 shadow-2xl flex flex-col items-center">
-            
-            <div className="w-full flex justify-between items-center pb-3 mb-3 border-b border-slate-800">
-              <h3 className="text-teal-400 font-serif font-bold text-sm sm:text-base tracking-wide">{selectedImage.title}</h3>
-              <button 
-                onClick={() => setSelectedImage(null)}
-                className="text-slate-400 hover:text-white bg-slate-800 p-2 rounded-full transition text-lg cursor-pointer"
+      {/* =====================================================
+          SKILLS
+      ===================================================== */}
+      <section
+        id="skills"
+        className="border-y border-cyan-400/10 bg-[#031326] py-24 px-5"
+      >
+
+        <div className="max-w-7xl mx-auto">
+
+          <div className="text-center mb-14">
+
+            <p className="text-cyan-400 text-[10px] uppercase tracking-[0.3em] font-bold">
+              Expertise & Software
+            </p>
+
+            <h2 className="text-4xl sm:text-5xl font-serif font-bold mt-2">
+              Professional Skills
+            </h2>
+
+          </div>
+
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-5">
+
+            {[
+              ["AutoCAD", "Advanced"],
+              ["Sketchup", "Expert"],
+              ["V-Ray", "Professional"],
+              ["Enscape", "Expert"],
+              ["Photoshop", "Advanced"],
+            ].map(([name, level]) => (
+
+              <div
+                key={name}
+                className="border border-cyan-400/20 bg-[#02101f] rounded-2xl p-7 text-center hover:border-cyan-400/60 hover:-translate-y-1 transition"
+              >
+
+                <div className="w-14 h-14 rounded-full border border-cyan-400/40 bg-cyan-400/5 flex items-center justify-center mx-auto text-cyan-400 text-xl">
+                  <FaTools />
+                </div>
+
+                <h3 className="font-bold mt-5">
+                  {name}
+                </h3>
+
+                <p className="text-xs text-slate-500 mt-2">
+                  {level}
+                </p>
+
+              </div>
+
+            ))}
+
+          </div>
+
+        </div>
+
+      </section>
+
+      {/* =====================================================
+          EXPERIENCE + EDUCATION
+      ===================================================== */}
+      <section className="py-24 px-5">
+
+        <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-16">
+
+          {/* EXPERIENCE */}
+          <div id="experience">
+
+            <div className="flex items-center gap-3 mb-8">
+
+              <FaBriefcase className="text-cyan-400 text-xl" />
+
+              <h2 className="text-3xl font-serif font-bold">
+                Experience
+              </h2>
+
+            </div>
+
+            <div className="border border-cyan-400/20 rounded-2xl bg-[#031326] p-7 border-l-4 border-l-cyan-400">
+
+              <p className="text-cyan-400 text-xs uppercase tracking-widest font-bold">
+                1.5 Years Experience
+              </p>
+
+              <h3 className="text-2xl font-bold mt-2">
+                RMG Development
+              </h3>
+
+              <p className="text-slate-400 text-sm leading-7 mt-4">
+                Working as a professional interior designer, handling
+                high-end architectural layouts, 3D rendering, and
+                execution.
+              </p>
+
+            </div>
+
+          </div>
+
+          {/* EDUCATION */}
+          <div id="education">
+
+            <div className="flex items-center gap-3 mb-8">
+
+              <FaGraduationCap className="text-cyan-400 text-xl" />
+
+              <h2 className="text-3xl font-serif font-bold">
+                Education & Diploma
+              </h2>
+
+            </div>
+
+            <div className="space-y-3">
+
+              {[
+                ["DIPLOMA", "Rawalpindi Institute Art & Design"],
+                ["BACHELOR", "Virtual University"],
+                ["HSSC", "Government Viqar-un-Nisa College"],
+                ["SSC", "The Amaranth School"],
+              ].map(([degree, school]) => (
+
+                <div
+                  key={degree}
+                  className="flex items-center gap-5 p-5 rounded-xl border border-cyan-400/20 bg-[#031326]"
+                >
+
+                  <span className="text-cyan-400 text-[9px] font-bold tracking-widest min-w-[65px]">
+                    {degree}
+                  </span>
+
+                  <span className="text-sm text-slate-300">
+                    {school}
+                  </span>
+
+                </div>
+
+              ))}
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </section>
+
+      {/* =====================================================
+          LANGUAGES
+      ===================================================== */}
+      <section className="border-y border-cyan-400/10 bg-[#031326] py-16 px-5">
+
+        <div className="text-center">
+
+          <FaLanguage className="text-cyan-400 text-3xl mx-auto" />
+
+          <h2 className="text-3xl font-serif font-bold mt-3">
+            Languages
+          </h2>
+
+          <div className="flex flex-wrap justify-center gap-3 mt-7">
+
+            {["English", "Urdu", "Punjabi"].map((language) => (
+
+              <span
+                key={language}
+                className="px-7 py-3 rounded-full border border-cyan-400/50 text-cyan-400 text-xs font-semibold"
+              >
+                {language}
+              </span>
+
+            ))}
+
+          </div>
+
+        </div>
+
+      </section>
+
+      {/* =====================================================
+          FOOTER
+      ===================================================== */}
+      <footer
+        id="contact"
+        className="bg-[#010914] pt-20 pb-8 px-5"
+      >
+
+        <div className="max-w-7xl mx-auto grid md:grid-cols-3 gap-12">
+
+          {/* BRAND */}
+          <div>
+
+            <div className="flex items-center gap-3">
+
+              <div className="w-11 h-11 rounded-full bg-gradient-to-br from-cyan-400 to-teal-300 flex items-center justify-center text-slate-950 font-serif font-bold">
+                NS
+              </div>
+
+              <div>
+                <p className="text-cyan-400 font-serif font-bold tracking-widest">
+                  NIMRA SARFRAZ
+                </p>
+
+                <p className="text-[8px] text-slate-500 tracking-[0.3em]">
+                  INTERIOR DESIGNER
+                </p>
+              </div>
+
+            </div>
+
+            <p className="text-slate-500 text-sm leading-6 mt-5 max-w-sm">
+              Professional Interior Designer specializing in creating
+              aesthetically pleasing, functional, and modern spatial
+              environments.
+            </p>
+
+          </div>
+
+          {/* LINKS */}
+          <div>
+
+            <h3 className="text-cyan-400 text-xs uppercase tracking-widest font-bold mb-5">
+              Quick Links
+            </h3>
+
+            <div className="space-y-3">
+
+              {navItems.slice(0, 5).map(([name, link]) => (
+
+                <a
+                  key={name}
+                  href={link}
+                  className="block text-sm text-slate-500 hover:text-cyan-400 transition"
+                >
+                  <FaChevronRight className="inline text-[8px] mr-2" />
+                  {name}
+                </a>
+
+              ))}
+
+            </div>
+
+          </div>
+
+          {/* CONNECT */}
+          <div>
+
+            <h3 className="text-cyan-400 text-xs uppercase tracking-widest font-bold mb-5">
+              Let's Connect
+            </h3>
+
+            <p className="text-slate-500 text-sm leading-6 mb-5">
+              Get in touch for professional interior design
+              consultations and project inquiries.
+            </p>
+
+            <a
+              href="mailto:Nimrasarfraz12@gmail.com"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-cyan-400 text-slate-950 rounded-full text-xs font-bold uppercase tracking-widest hover:bg-cyan-300 transition"
+            >
+              Hire Me Now
+              <FaArrowRight />
+            </a>
+
+          </div>
+
+        </div>
+
+        <div className="max-w-7xl mx-auto mt-12 pt-7 border-t border-slate-900 flex flex-col sm:flex-row justify-between gap-3 text-center sm:text-left text-xs text-slate-600">
+
+          <p>
+            © {new Date().getFullYear()} Nimra Sarfraz. All rights reserved.
+          </p>
+
+          <p>
+            Rawalpindi, Pakistan
+          </p>
+
+        </div>
+
+      </footer>
+
+      {/* =====================================================
+          CV MODAL
+      ===================================================== */}
+      {cvOpen && (
+
+        <div
+          className="fixed inset-0 z-[200] bg-black/90 backdrop-blur-md flex items-center justify-center p-4"
+          onClick={() => setCvOpen(false)}
+        >
+
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="relative w-full max-w-3xl max-h-[92vh] bg-[#031326] border border-cyan-400/40 rounded-3xl p-5 overflow-hidden"
+          >
+
+            <div className="flex items-center justify-between border-b border-slate-800 pb-4 mb-4">
+
+              <h3 className="text-cyan-400 font-serif font-bold">
+                NIMRA SARFRAZ — CV
+              </h3>
+
+              <button
+                onClick={() => setCvOpen(false)}
+                className="w-9 h-9 rounded-full bg-slate-800 flex items-center justify-center hover:bg-cyan-400 hover:text-slate-950 transition"
               >
                 <FaTimes />
               </button>
+
             </div>
 
-            <div className="w-full max-h-[75vh] flex justify-center overflow-hidden rounded-xl bg-slate-950">
-              <img 
-                src={selectedImage.img} 
-                alt={selectedImage.title} 
-                className="max-h-[70vh] w-auto object-contain rounded-lg"
+            <div className="max-h-[65vh] overflow-y-auto flex justify-center">
+
+              <img
+                src="/cv.jpg"
+                alt="Nimra Sarfraz CV"
+                className="max-w-full rounded-xl"
               />
+
             </div>
 
-            <div className="mt-4 flex justify-end w-full">
-              <button 
+            <div className="flex gap-3 mt-5">
+
+              <a
+                href="/cv.jpg"
+                download="Nimra_Sarfraz_CV.jpg"
+                className="flex-1 py-3 rounded-full bg-cyan-400 text-slate-950 text-center text-xs font-bold uppercase tracking-widest"
+              >
+                <FaDownload className="inline mr-2" />
+                Download CV
+              </a>
+
+              <button
+                onClick={() => setCvOpen(false)}
+                className="px-6 py-3 rounded-full border border-slate-700 text-slate-300 text-xs uppercase"
+              >
+                Close
+              </button>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      )}
+
+      {/* =====================================================
+          IMAGE LIGHTBOX
+      ===================================================== */}
+      {selectedImage && (
+
+        <div
+          className="fixed inset-0 z-[200] bg-black/95 backdrop-blur-md flex items-center justify-center p-4"
+          onClick={() => setSelectedImage(null)}
+        >
+
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="relative max-w-5xl w-full bg-[#031326] border border-cyan-400/40 rounded-3xl p-4 sm:p-6"
+          >
+
+            <div className="flex justify-between items-center mb-4">
+
+              <h3 className="text-cyan-400 font-serif font-bold text-sm">
+                {selectedImage.title}
+              </h3>
+
+              <button
                 onClick={() => setSelectedImage(null)}
-                className="px-6 py-2.5 bg-teal-500 text-slate-950 font-bold text-xs uppercase tracking-wider rounded-full hover:bg-teal-400 transition"
+                className="w-9 h-9 rounded-full bg-slate-800 flex items-center justify-center"
+              >
+                <FaTimes />
+              </button>
+
+            </div>
+
+            <div className="flex justify-center bg-black rounded-2xl overflow-hidden">
+
+              <img
+                src={selectedImage.img}
+                alt={selectedImage.title}
+                className="max-h-[75vh] max-w-full object-contain"
+              />
+
+            </div>
+
+            <div className="text-right mt-4">
+
+              <button
+                onClick={() => setSelectedImage(null)}
+                className="px-6 py-2.5 rounded-full bg-cyan-400 text-slate-950 text-xs font-bold uppercase"
               >
                 Close Preview
               </button>
+
             </div>
 
           </div>
+
         </div>
+
       )}
-
-      {/* Skills Section */}
-      <section id="skills" className="py-24 max-w-7xl mx-auto px-6 border-t border-slate-800">
-        <div className="text-center mb-16">
-          <span className="text-teal-400 uppercase tracking-[0.2em] text-xs font-semibold">Expertise & Software</span>
-          <h2 className="text-3xl md:text-5xl font-serif font-bold mt-2">Professional Skills</h2>
-        </div>
-
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-6">
-          {[
-            { name: "AutoCAD", level: "Advanced" },
-            { name: "Sketchup", level: "Expert" },
-            { name: "V-Ray", level: "Professional" },
-            { name: "Enscape", level: "Expert" },
-            { name: "Photoshop", level: "Advanced" }
-          ].map((skill, index) => (
-            <div key={index} className="bg-slate-900/80 border border-slate-800 p-8 rounded-2xl text-center hover:border-teal-500/50 transition group">
-              <div className="w-12 h-12 bg-teal-500/10 text-teal-400 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition">
-                <FaTools />
-              </div>
-              <h3 className="text-lg font-bold mb-1">{skill.name}</h3>
-              <p className="text-xs text-slate-400">{skill.level}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Experience & Education Section */}
-      <section className="py-24 bg-slate-900/40 border-t border-slate-800">
-        <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-16">
-          
-          {/* Experience */}
-          <div id="experience">
-            <div className="flex items-center space-x-3 mb-10">
-              <FaBriefcase className="text-teal-400 text-2xl" />
-              <h2 className="text-3xl font-serif font-bold">Experience</h2>
-            </div>
-            <div className="space-y-6">
-              <div className="bg-slate-950 p-8 rounded-2xl border border-slate-800 relative pl-8 border-l-4 border-l-teal-400">
-                <span className="text-xs text-teal-400 font-semibold uppercase tracking-wider">1.5 Years Experience</span>
-                <h3 className="text-2xl font-bold mt-1">RMG Development</h3>
-                <p className="text-slate-400 text-sm mt-2">Working as a professional interior designer, handling high-end architectural layouts, 3D rendering, and execution.</p>
-              </div>
-            </div>
-          </div>
-
-          {/* Education */}
-          <div id="education">
-            <div className="flex items-center space-x-3 mb-10">
-              <FaGraduationCap className="text-teal-400 text-2xl" />
-              <h2 className="text-3xl font-serif font-bold">Education & Diploma</h2>
-            </div>
-            <div className="space-y-4">
-              <div className="bg-slate-950 p-5 rounded-2xl border border-slate-800 flex justify-between items-center">
-                <div>
-                  <span className="text-xs text-teal-400 uppercase font-semibold">Diploma</span>
-                  <h4 className="text-base font-bold">Rawalpindi Institute Art & Design</h4>
-                </div>
-              </div>
-              <div className="bg-slate-950 p-5 rounded-2xl border border-slate-800 flex justify-between items-center">
-                <div>
-                  <span className="text-xs text-teal-400 uppercase font-semibold">Bachelor</span>
-                  <h4 className="text-base font-bold">Virtual University</h4>
-                </div>
-              </div>
-              <div className="bg-slate-950 p-5 rounded-2xl border border-slate-800 flex justify-between items-center">
-                <div>
-                  <span className="text-xs text-teal-400 uppercase font-semibold">HSSC</span>
-                  <h4 className="text-base font-bold">Government Viqar-un-Nisa College</h4>
-                </div>
-              </div>
-              <div className="bg-slate-950 p-5 rounded-2xl border border-slate-800 flex justify-between items-center">
-                <div>
-                  <span className="text-xs text-teal-400 uppercase font-semibold">SSC</span>
-                  <h4 className="text-base font-bold">The Amaranth School</h4>
-                </div>
-              </div>
-            </div>
-          </div>
-
-        </div>
-      </section>
-
-      {/* Languages Section */}
-      <section className="py-20 max-w-7xl mx-auto px-6">
-        <div className="text-center mb-10">
-          <FaLanguage className="text-teal-400 text-3xl mx-auto mb-3" />
-          <h2 className="text-2xl md:text-3xl font-serif font-bold">Languages</h2>
-        </div>
-        <div className="flex flex-wrap justify-center gap-4">
-          {["English", "Urdu", "Punjabi"].map((lang, idx) => (
-            <span key={idx} className="px-6 py-3 bg-slate-900 border border-slate-800 rounded-full font-medium tracking-wide text-teal-400 shadow-sm">
-              {lang}
-            </span>
-          ))}
-        </div>
-      </section>
-
-      {/* Professional Footer / Contact Section */}
-      <footer id="contact" className="bg-slate-950 border-t border-slate-800 pt-16 pb-12">
-        <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-3 gap-10 mb-12">
-          
-          {/* Column 1: Brand Info */}
-          <div className="space-y-4">
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-teal-600 to-teal-300 flex items-center justify-center text-slate-950 font-serif font-bold text-lg shadow-md">
-                NS
-              </div>
-              <span className="font-serif tracking-widest text-teal-400 font-bold text-base">
-                NIMRA SARFRAZ
-              </span>
-            </div>
-            <p className="text-slate-400 text-sm leading-relaxed">
-              Professional Interior Designer specializing in creating aesthetically pleasing, functional, and modern spatial environments.
-            </p>
-          </div>
-
-          {/* Column 2: Quick Links */}
-          <div>
-            <h3 className="text-teal-400 font-serif font-bold text-base uppercase tracking-wider mb-4">Quick Links</h3>
-            <ul className="space-y-2.5 text-sm">
-              <li><a href="#home" className="text-slate-400 hover:text-teal-400 transition">Home</a></li>
-              <li><a href="#about" className="text-slate-400 hover:text-teal-400 transition">About & Info</a></li>
-              <li><a href="#projects" className="text-slate-400 hover:text-teal-400 transition">Projects Gallery</a></li>
-              <li><a href="#skills" className="text-slate-400 hover:text-teal-400 transition">Skills & Software</a></li>
-              <li><a href="#experience" className="text-slate-400 hover:text-teal-400 transition">Experience</a></li>
-            </ul>
-          </div>
-
-          {/* Column 3: Let's Connect */}
-          <div>
-            <h3 className="text-teal-400 font-serif font-bold text-base uppercase tracking-wider mb-4">Let's Connect</h3>
-            <p className="text-slate-400 text-sm mb-4">Get in touch for professional interior design consultations and project inquiries.</p>
-            <a 
-              href="mailto:Nimrasarfraz12@gmail.com" 
-              className="inline-block px-6 py-3 bg-teal-500 text-slate-950 font-bold tracking-wider uppercase text-xs rounded-full hover:bg-teal-400 transition shadow-lg shadow-teal-500/20"
-            >
-              Hire Me Now
-            </a>
-          </div>
-
-        </div>
-
-        {/* Bottom Bar / Copyright */}
-        <div className="max-w-7xl mx-auto px-6 pt-8 border-t border-slate-900 text-center flex flex-col sm:flex-row justify-between items-center text-xs text-slate-500">
-          <p>© {new Date().getFullYear()} Nimra Sarfraz. All rights reserved.</p>
-          <p className="mt-2 sm:mt-0 text-teal-500/80">Rawalpindi, Pakistan</p>
-        </div>
-      </footer>
 
     </div>
   );
